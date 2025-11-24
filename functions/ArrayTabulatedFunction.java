@@ -1,8 +1,18 @@
 package functions;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-public class ArrayTabulatedFunction implements TabulatedFunction, java.io.Serializable  {
+public class ArrayTabulatedFunction implements TabulatedFunction, java.io.Serializable, java.io.Externalizable {
     private FunctionPoint[] points;
     private int pointsCount;
+        public ArrayTabulatedFunction() {
+        // Создаем минимальную валидную функцию
+        this.points = new FunctionPoint[2];
+        this.points[0] = new FunctionPoint(0.0, 0.0);
+        this.points[1] = new FunctionPoint(1.0, 1.0);
+        this.pointsCount = 2;
+    }
     
     // Конструктор с количеством точек
     public ArrayTabulatedFunction(double leftX, double rightX, int pointsCount) {
@@ -200,5 +210,23 @@ public class ArrayTabulatedFunction implements TabulatedFunction, java.io.Serial
         // Вставляем новую точку
         points[insertIndex] = new FunctionPoint(point);
         pointsCount++;
+    }
+        // Реализация Externalizable
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(pointsCount);
+        for (int i = 0; i < pointsCount; i++) {
+            out.writeDouble(points[i].getX());
+            out.writeDouble(points[i].getY());
+        }
+    }
+
+    public void readExternal(ObjectInput in) throws IOException {
+        pointsCount = in.readInt();
+        points = new FunctionPoint[pointsCount];
+        for (int i = 0; i < pointsCount; i++) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            points[i] = new FunctionPoint(x, y);
+        }
     }
 }

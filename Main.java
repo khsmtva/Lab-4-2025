@@ -20,6 +20,9 @@ public class Main {
             
             // Тестирование сериализации
             testSerialization();
+
+            // Тестирование Externalizable
+            testExternalizable();
             
         } catch (Exception e) {
             System.out.println("Ошибка: " + e.getMessage());
@@ -248,5 +251,33 @@ public class Main {
             double y2 = f2.getFunctionValue(x);
             System.out.printf("  x=%.1f: исходная=%.4f, прочитанная=%.4f%n", x, y1, y2);
         }
+    }
+           private static void testExternalizable() throws IOException, ClassNotFoundException {
+        System.out.println("\n--- Тестирование Externalizable ---");
+        
+        FunctionPoint[] points = {
+            new FunctionPoint(0.0, 1.0),
+            new FunctionPoint(1.0, 2.718),
+            new FunctionPoint(2.0, 7.389)
+        };
+        
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(points);
+        
+        // Serializable
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("serializable_test.dat"))) {
+            oos.writeObject(func);
+        }
+        
+        // Externalizable
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("externalizable_test.dat"))) {
+            func.writeExternal(oos);
+        }
+        
+        File serializableFile = new File("serializable_test.dat");
+        File externalizableFile = new File("externalizable_test.dat");
+        
+        System.out.println("Serializable размер: " + serializableFile.length() + " байт");
+        System.out.println("Externalizable размер: " + externalizableFile.length() + " байт");
+        System.out.println("Разница: " + (serializableFile.length() - externalizableFile.length()) + " байт");
     }
 }
