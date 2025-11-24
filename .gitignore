@@ -1,0 +1,10 @@
+*.class
+*.dat
+*.txt
+*.tmp
+bin/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
