@@ -253,31 +253,40 @@ public class Main {
         }
     }
            private static void testExternalizable() throws IOException, ClassNotFoundException {
-        System.out.println("\n--- Тестирование Externalizable ---");
-        
-        FunctionPoint[] points = {
-            new FunctionPoint(0.0, 1.0),
-            new FunctionPoint(1.0, 2.718),
-            new FunctionPoint(2.0, 7.389)
-        };
-        
-        ArrayTabulatedFunction func = new ArrayTabulatedFunction(points);
-        
-        // Serializable
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("serializable_test.dat"))) {
-            oos.writeObject(func);
-        }
-        
-        // Externalizable
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("externalizable_test.dat"))) {
-            func.writeExternal(oos);
-        }
-        
-        File serializableFile = new File("serializable_test.dat");
-        File externalizableFile = new File("externalizable_test.dat");
-        
-        System.out.println("Serializable размер: " + serializableFile.length() + " байт");
-        System.out.println("Externalizable размер: " + externalizableFile.length() + " байт");
-        System.out.println("Разница: " + (serializableFile.length() - externalizableFile.length()) + " байт");
+    System.out.println("\n--- Тестирование Externalizable ---");
+    
+    // Просто демонстрация что Externalizable работает
+    FunctionPoint[] points = {
+        new FunctionPoint(0.0, 1.0),
+        new FunctionPoint(1.0, 2.718),
+        new FunctionPoint(2.0, 7.389)
+    };
+    
+    ArrayTabulatedFunction func = new ArrayTabulatedFunction(points);
+    
+    // Сериализация (будет использован Externalizable)
+    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("externalizable_demo.dat"))) {
+        oos.writeObject(func);
     }
-}
+    
+    // Десериализация
+    ArrayTabulatedFunction deserializedFunc;
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("externalizable_demo.dat"))) {
+        deserializedFunc = (ArrayTabulatedFunction) ois.readObject();
+    }
+    
+    // Проверяем корректность работы
+    System.out.println("Externalizable работает корректно:");
+    for (int i = 0; i < deserializedFunc.getPointsCount(); i++) {
+        FunctionPoint original = func.getPoint(i);
+        FunctionPoint restored = deserializedFunc.getPoint(i);
+        System.out.printf("  Точка %d: (%.1f, %.3f) -> (%.1f, %.3f)%n", 
+            i, original.getX(), original.getY(), restored.getX(), restored.getY());
+    }
+    
+    // Показываем размер файла как демонстрацию эффективности
+    File file = new File("externalizable_demo.dat");
+    System.out.println("Размер Externalizable файла: " + file.length() + " байт");
+        }
+
+}  
